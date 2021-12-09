@@ -38,7 +38,23 @@ PassLabel.place(x = 5, y = 130)
 PassEntry = ttk.Entry(RightFrame, width=30, show = "*")
 PassEntry.place(x = 150, y = 140)
 
-LoginButton = ttk.Button(RightFrame, text="Login", width=30)
+def Login():
+    User = UserEntry.get()
+    Pass = PassEntry.get()
+    
+    DataBaser.cursor.execute("""
+    SELECT * FROM Users
+    WHERE (User = ? AND Passwords = ?)
+    """, (User, Pass))
+    print("Logado")
+    VeriFyLogin = DataBaser.cursor.fetchone()
+    try:
+        if (User in VeriFyLogin and Pass in VeriFyLogin):
+            messagebox.showinfo(title = "Login Info", message="Acesso Confirmado. Bem vindo!")
+    except TypeError:
+            messagebox.showinfo(title="Login Info", message="Acesso Negado. Verifique se está cadastrado no sistema!")
+
+LoginButton = ttk.Button(RightFrame, text="Login", width=30, command=Login)
 LoginButton.place(x = 115, y = 200 )
 
 def Register():
@@ -64,11 +80,14 @@ def Register():
         User = UserEntry.get()
         Pass = PassEntry.get()
         
-        DataBaser.cursor.execute("""
-            INSERT INTO Users(Names, Email, User, Passwords) VALUES(?, ?, ?, ?)
-            """, (Name, Email, User, Pass))
-        DataBaser.connection.commit()
-        messagebox.showinfo(title="Register Info", message="Register Sucessfull")
+        if (Name == "" and Email == "" and User == "" and Pass == ""): 
+            messagebox.showerror(title = "Register Error", message="Não Deixe nenhum Campo Vazio. Preencha todos os campos")
+        else:
+            DataBaser.cursor.execute("""
+                INSERT INTO Users(Names, Email, User, Passwords) VALUES(?, ?, ?, ?)
+                """, (Name, Email, User, Pass))
+            DataBaser.connection.commit()
+            messagebox.showinfo(title="Register Info", message="Register Sucessfull")
     
     Register = ttk.Button(RightFrame, text="Register", width = 30, command=RegisterInDB)
     Register.place(x = 115, y = 200 )
